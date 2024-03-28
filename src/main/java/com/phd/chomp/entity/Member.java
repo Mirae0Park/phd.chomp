@@ -1,5 +1,6 @@
 package com.phd.chomp.entity;
 
+import com.phd.chomp.constant.MemberRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,21 @@ public class Member extends BaseEntity{
     private String phone; // 전화번호
 
     private boolean del; // 회원탈퇴
+
+    @Enumerated(EnumType.STRING)
+    private MemberRole memberRole;
+
+    @Builder
+    public Member(Long id, String email, String pw, String uid, String name, String birth, String phone, MemberRole memberRole) {
+        this.id = id;
+        this.email = email;
+        this.pw = pw;
+        this.uid = uid;
+        this.name = name;
+        this.birth = birth;
+        this.phone = phone;
+        this.memberRole = memberRole;
+    }
 
 
 }
