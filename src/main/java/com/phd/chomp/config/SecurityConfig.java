@@ -3,11 +3,14 @@ package com.phd.chomp.config;
 import com.phd.chomp.jwt.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.catalina.filters.CorsFilter;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,9 +27,9 @@ import java.util.Collections;
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@Log4j2
 public class SecurityConfig {
     private final TokenProvider tokenProvider;
-    /*private final CorsConfigurationSource corsConfigurationSource;*/
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -42,7 +45,6 @@ public class SecurityConfig {
                 .csrf((csrfConfig) ->
                         csrfConfig.disable()
                 )
-                /*.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource))*/
 
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override
@@ -67,10 +69,18 @@ public class SecurityConfig {
 
                 // 시큐리티는 기본적으로 세션을 사용
                 // 여기서는 세션을 사용하지 않기 때문에 세션 설정을 Stateless로 설정
+
+                .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
                                 .requestMatchers(
                                         AntPathRequestMatcher.antMatcher("/auth/**")
+                                ).permitAll()
+                                .requestMatchers(
+                                        AntPathRequestMatcher.antMatcher("/join")
                                 ).permitAll()
                                 .anyRequest().authenticated() // 나머지 API는 전부 인증 필요
                 )
@@ -81,14 +91,19 @@ public class SecurityConfig {
                                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
 
-                /*.sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .formLogin(AbstractHttpConfigurer::disable)
-                        .httpBasic(AbstractHttpConfigurer::disable)*/
-
                 // JwtFilter 를 addFilterBefore 로 등록했던 Jwt SecuriityConfig 클래스를 적용
                 .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return  http.build();
 
+    }
+
+    // css나 js 파일 등 정적 자원에 시큐리티 필터 적용 해제
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+
+        log.info("SecurityConfig.webSecurityCustomizer() 정적 파일 시큐리티 적용 해제");
+
+        return (web) -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 }
