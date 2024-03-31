@@ -14,10 +14,10 @@ public class RefreshToken {
 
     @Id
     @Column(name = "rt_key")
-    private String key;
+    private String key; // Member ID 값이 들어감
 
     @Column(name = "rt_value")
-    private String value;
+    private String value; // Refresh Token String 이 들어감
 
     @Builder
     public RefreshToken(String key, String value){

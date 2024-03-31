@@ -76,13 +76,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers(
-                                        AntPathRequestMatcher.antMatcher("/auth/**")
-                                ).permitAll()
-                                .requestMatchers(
-                                        AntPathRequestMatcher.antMatcher("/join")
-                                ).permitAll()
-                                .anyRequest().authenticated() // 나머지 API는 전부 인증 필요
+                                .requestMatchers("/auth/**", "/join", "/fonts/**", "/vendors/**").permitAll()
+                                .anyRequest().authenticated()
                 )
 
                 // exception handling 할 때 만든 클래스를 추가

@@ -20,8 +20,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/signup") // 회원가입
+    @PostMapping("/signup") // 회원 가입
     public ResponseEntity<MemberResponseDto> signup(@RequestBody MemberRequestDto memberRequestDto){
+        log.info("uid : " + memberRequestDto.getUid());
+        log.info("pw : " + memberRequestDto.getPw());
+
         return ResponseEntity.ok(authService.signup(memberRequestDto));
     }
 
@@ -31,17 +34,8 @@ public class AuthController {
     }
 
     @PostMapping("/reissue") // 재발급
-    public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto tokenRequestDto){
+    public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto tokenRequestDto) {
         return ResponseEntity.ok(authService.reissue(tokenRequestDto));
-    }
-
-    @GetMapping("/join")
-    public String joinGet(Model model) {
-        /*model.addAttribute("memberJoinDto", new MemberJoinDTO());*/
-
-        log.info("MemberController.joinGet() 회원가입 페이지 접근");
-
-        return "member/signup";
     }
 
 }
