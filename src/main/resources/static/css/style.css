@@ -2209,8 +2209,7 @@ pre {
   display: flex;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  margin-right: -9px;
-  margin-left: -9px; }
+  }
 
 .no-gutters {
   margin-right: 0;
@@ -2723,8 +2722,8 @@ pre {
   .col-md-6 {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 50%;
-    flex: 0 0 50%;
-    max-width: 50%; }
+
+     }
   .col-md-7 {
     -webkit-box-flex: 0;
     -ms-flex: 0 0 58.33333%;
@@ -14117,8 +14116,11 @@ dl {
 .main-panel {
   -webkit-transition: width 0.25s ease, margin 0.25s ease;
   transition: width 0.25s ease, margin 0.25s ease;
-  width: calc(100% - 258px);
+  width: 100%;
   min-height: calc(100vh - 64px);
+  position: absolute;
+  top: 62px;
+  height: 833px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;

@@ -30,6 +30,8 @@ public class AuthController {
 
     @PostMapping("/login") // 로그인
     public ResponseEntity<TokenDto> login (@RequestBody MemberRequestDto memberRequestDto){
+        log.info("Auth Controller Login method.....");
+
         return ResponseEntity.ok(authService.login(memberRequestDto));
     }
 
@@ -37,5 +39,4 @@ public class AuthController {
     public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto tokenRequestDto) {
         return ResponseEntity.ok(authService.reissue(tokenRequestDto));
     }
-
 }
