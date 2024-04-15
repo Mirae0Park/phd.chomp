@@ -5,6 +5,65 @@
 
 <div layout:fragment="script">
     <script type="text/javascript">
+        $(document).ready(function () {
+                    var errorMessage = "[[${errorMessage}]]";
+                    if (errorMessage != null && errorMessage !== "") {
+                        alert(errorMessage);
+                    }
+
+                    bindDomEvent();
+
+                });
+
+                function bindDomEvent() {
+                    $(".custom-file-input").on("change", function () {
+                        var fileName = $(this).val().split("\\").pop();  //이미지 파일명
+                        var fileExt = fileName.substring(fileName.lastIndexOf(".") + 1); // 확장자 추출
+                        fileExt = fileExt.toLowerCase(); //소문자 변환
+
+                        if (fileExt != "jpg" && fileExt != "jpeg" && fileExt != "gif" && fileExt != "png" && fileExt != "bmp") {
+                            alert("이미지 파일만 등록이 가능합니다.");
+                            return;
+                        }
+
+                        $(this).siblings(".custom-file-label").html(fileName);
+                    });
+                }
+
+                // 파일 업로드 버튼을 클릭할 때
+                document.getElementById("add-file-button").addEventListener("click", function () {
+                    document.getElementById("file-input").click();
+                });
+
+                // 파일 선택 시
+                document.getElementById("file-input").addEventListener("change", function (event) {
+                    const fileList = event.target.files;
+                    const fileContainer = document.getElementById("file-list");
+
+                    for (let i = 0; i < fileList.length; i++) {
+                        const file = fileList[i];
+
+                        if (fileContainer.childElementCount < 5) {
+        // 최대 5개까지 파일 표시
+                            const fileItem = document.createElement("div");
+                            fileItem.classList.add("input-group-append");
+                            fileItem.textContent = file.name;
+
+                            const deleteButton = document.createElement("button");
+                            deleteButton.textContent = "x";
+                            deleteButton.addEventListener("click", function () {
+        // 파일 삭제 버튼을 클릭했을 때
+                                fileItem.remove();
+                            });
+
+                            fileItem.appendChild(deleteButton);
+                            fileContainer.appendChild(fileItem);
+                        } else {
+                            alert("최대 5개의 파일만 첨부할 수 있습니다.");
+                            break;
+                        }
+                    }
+                });
 
     </script>
 </div>
@@ -247,7 +306,7 @@
         <div class="main-panel">
             <div class="content-wrapper">
                 <div class="page-header">
-                    <h3 class="page-title"> 상품 등록 </h3>
+                    <h3 class="page-title"> 상품 등록 / 수정 </h3>
                     <!--<nav aria-label="breadcrumb">
                       <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="#">Forms</a></li>
@@ -294,17 +353,59 @@
                                     <textarea class="form-control" th:field="*{itemDetail}" rows="4"></textarea>
                                 </div>
                                 <!--<div class="form-group">
-                                    <label>File upload</label>
+                                    <label>File upload (최대 5개 까지 가능합니다.) </label>
+
                                     <input type="file" name="img[]" class="file-upload-default">
-                                    <div class="input-group col-xs-12">
-                                        <input type="text" class="form-control file-upload-info" disabled
-                                               placeholder="Upload Image">
+                                    <div class="input-group col-xs-12" th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
+                                        <input type="file" class="form-control file-upload-info" disabled
+                                               placeholder="Upload Image" id="file-input" name="itemImgFile">
                                         <span class="input-group-append">
                                           <button class="file-upload-browse btn btn-primary"
-                                                  type="button">Upload</button>
+                                                  type="button"  id="add-file-button">Upload</button>
                                         </span>
                                     </div>
                                 </div>-->
+
+                                <div class="form-group">
+                                    <label>File upload (최대 5개 까지 가능합니다.) </label>
+                                    <div class="input-group col-xs-12" id="file-list">
+                                         <!--첨부파일이 여기에 나열될 것입니다.-->
+                                    </div>
+                                    <div class="input-group col-xs-12" th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
+                                        <span class="input-group-append">
+                                          <button class="file-upload-browse btn btn-primary"
+                                                  type="button"  id="add-file-button">Upload</button>
+                                        </span>
+                                        <input type="file" class="form-control file-upload-info" id="file-input" name="itemImgFile"
+                                               style="display: none;" multiple />
+                                    </div>
+                                </div>
+
+                                <!--<div class="list-item" id="file-list">
+                                    &lt;!&ndash; 첨부파일이 여기에 나열될 것입니다. &ndash;&gt;
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
+                                    <img class="icon-folder" src="/img/icon-folder.png" id="add-file-button"
+                                         style="cursor: pointer;"/>
+                                    <input type="file" id="file-input" name="itemImgFile" style="display: none;" multiple/>
+
+                                </div>-->
+
+
+                                <!--<div th:if="${not #lists.isEmpty(itemFormDto.itemImgDtoList)}">
+                                    <div class="form-group" th:each="itemImgDto, status: ${itemFormDto.itemImgDtoList}">
+                                        <div class="label">
+                                            <div class="pseudo">
+                                                <input type="file" class="text-wrapper-13" name="itemImgFile">
+                                                <input type="hidden" name="itemImgIds" th:value="${itemImgDto.id}">
+                                            </div>
+                                            <label class="custom-file-label"
+                                                   th:text="${not #strings.isEmpty(itemImgDto.iimgori)} ? ${itemImgDto.iimgori} : '상품이미지' + ${status.index+1}"></label>
+                                        </div>
+                                    </div>
+                                </div>-->
+
 
                                 <br>
                                 <button type="submit" th:formaction="@{/item/register}"

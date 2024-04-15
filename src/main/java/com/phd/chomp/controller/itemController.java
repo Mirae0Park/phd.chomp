@@ -30,7 +30,7 @@ public class itemController {
 
     @PostMapping(value = "/item/register")
     public String itemNew(@Valid ItemFormDto itemFormDto, BindingResult bindingResult,
-                          Model model){
+                          Model model, @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList){
 
         log.info("itemController.............................");
 
@@ -38,17 +38,17 @@ public class itemController {
             return "item/itemRegister";
         }
 
-        /*if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null){ , @RequestParam("itemImgFile")List<MultipartFile> itemImgFileList
+        if (itemImgFileList.get(0).isEmpty() && itemFormDto.getId() == null){
             model.addAttribute("errorMessage", "첫 번째 상품 이미지는 필수 입력 값입니다.");
             return "item/itemRegister";
-        }*/
+        }
 
         try{
-            log.info("itemcontroller : " + itemFormDto);
-            itemService.saveItem(itemFormDto);
+            log.info("itemController : " + itemImgFileList);
+            itemService.saveItem(itemFormDto, itemImgFileList);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "상품 등록 중 에러가 발생하였습니다.");
-            return "item/register";
+            return "item/itemRegister";
         }
 
         return "member/login";

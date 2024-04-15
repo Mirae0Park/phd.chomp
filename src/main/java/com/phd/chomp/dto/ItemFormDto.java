@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 public class ItemFormDto {
@@ -30,6 +33,9 @@ public class ItemFormDto {
         return modelMapper.map(this, Item.class);
     }
 
+    private List<ItemImgDto> itemImgDtoList = new ArrayList<>(); // 상품 저장 후 수정할 때 상품 이미지 정보를 저장하는 리스트
+
+    private List<Long> itemImgIds = new ArrayList<>(); // 상품의 이미지 아이디를 저장하는 리스트
 
 
 }
