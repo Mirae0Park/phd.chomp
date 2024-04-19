@@ -34,6 +34,8 @@ public class Item extends BaseEntity{
     @Column(nullable = false)
     private String cate; // 카테고리
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "itemSellStatus")
     private ItemSellStatus itemSellStatus;
 
     public void updateItem(ItemFormDto itemFormDto){

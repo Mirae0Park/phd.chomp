@@ -3,7 +3,11 @@ package com.phd.chomp.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,11 +43,6 @@ public class MainController {
         log.info("index 페이지 접근");
 
         return "index1";
-    }
-
-    @GetMapping("/shop")
-    public String shop() {
-        return "item/shop";
     }
 
 

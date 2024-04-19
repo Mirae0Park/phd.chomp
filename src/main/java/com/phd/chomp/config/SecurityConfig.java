@@ -74,11 +74,17 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
-                .authorizeHttpRequests(authorizeRequest ->
+                /*.authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
                                 .requestMatchers("/auth/**", "/join", "/login" , "/item/*", "/admin/**", "/index", "/index1",
-                                        "/fonts/**", "/vendors/**", "/image/**", "img/**", "/webfonts/**", "/bootstrap/**").permitAll()
+                                        "/shop",
+                                        "/fonts/**", "/vendors/**", "/image/**", "/images/**", "img/**", "/webfonts/**", "/bootstrap/**").permitAll()
                                 .anyRequest().authenticated()
+                )*/
+
+                .authorizeHttpRequests(authorizeRequest ->
+                        authorizeRequest
+                                .anyRequest().permitAll()
                 )
 
                 // exception handling 할 때 만든 클래스를 추가
