@@ -76,7 +76,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers("/auth/**", "/join", "/login" , "/item/*", "/admin/**", "/fonts/**", "/vendors/**").permitAll()
+                                .requestMatchers("/auth/**", "/join", "/login" , "/item/*", "/admin/**", "/index", "/index1",
+                                        "/fonts/**", "/vendors/**", "/image/**", "img/**", "/webfonts/**", "/bootstrap/**").permitAll()
                                 .anyRequest().authenticated()
                 )
 
