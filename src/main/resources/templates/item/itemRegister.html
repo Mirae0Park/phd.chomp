@@ -322,11 +322,19 @@
                             <form class="forms-sample" role="form" method="post"
                                   enctype="multipart/form-data"
                                   th:object="${itemFormDto}">
-                                <!--<input type="hidden" th:field="*{id}">-->
+                                <input type="hidden" th:field="*{id}">
                                 <div class="form-group">
                                     <label th:for="itemName">상품명</label>
                                     <input type="text" class="form-control" th:field="*{itemName}"
                                            placeholder="상품명을 입력 해주세요">
+                                </div>
+                                <div class="form-group">
+                                    <label th:for="itemSellStatus">판매상태</label>
+                                    <select th:field="*{itemSellStatus}" class="form-control">
+                                        <option value="SELL">판매중</option>
+                                        <option value="SOLD_OUT">품절</option>
+                                        <option value="PAUSE">판매중지</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label th:for="price">가격</label>
@@ -352,19 +360,6 @@
                                     <label th:for="itemDetail">Textarea</label>
                                     <textarea class="form-control" th:field="*{itemDetail}" rows="4"></textarea>
                                 </div>
-                                <!--<div class="form-group">
-                                    <label>File upload (최대 5개 까지 가능합니다.) </label>
-
-                                    <input type="file" name="img[]" class="file-upload-default">
-                                    <div class="input-group col-xs-12" th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
-                                        <input type="file" class="form-control file-upload-info" disabled
-                                               placeholder="Upload Image" id="file-input" name="itemImgFile">
-                                        <span class="input-group-append">
-                                          <button class="file-upload-browse btn btn-primary"
-                                                  type="button"  id="add-file-button">Upload</button>
-                                        </span>
-                                    </div>
-                                </div>-->
 
                                 <div class="form-group">
                                     <label>File upload (최대 5개 까지 가능합니다.) </label>
@@ -374,42 +369,34 @@
                                     <div class="input-group col-xs-12" th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
                                         <span class="input-group-append">
                                           <button class="file-upload-browse btn btn-primary"
-                                                  type="button"  id="add-file-button">Upload</button>
+                                                  type="button" id="add-file-button">Upload</button>
                                         </span>
                                         <input type="file" class="form-control file-upload-info" id="file-input" name="itemImgFile"
                                                style="display: none;" multiple />
                                     </div>
-                                </div>
 
-                                <!--<div class="list-item" id="file-list">
-                                    &lt;!&ndash; 첨부파일이 여기에 나열될 것입니다. &ndash;&gt;
-                                </div>
-
-                                <div th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
-                                    <img class="icon-folder" src="/img/icon-folder.png" id="add-file-button"
-                                         style="cursor: pointer;"/>
-                                    <input type="file" id="file-input" name="itemImgFile" style="display: none;" multiple/>
-
-                                </div>-->
-
-
-                                <!--<div th:if="${not #lists.isEmpty(itemFormDto.itemImgDtoList)}">
-                                    <div class="form-group" th:each="itemImgDto, status: ${itemFormDto.itemImgDtoList}">
-                                        <div class="label">
-                                            <div class="pseudo">
-                                                <input type="file" class="text-wrapper-13" name="itemImgFile">
-                                                <input type="hidden" name="itemImgIds" th:value="${itemImgDto.id}">
+                                    <div th:if="${not #lists.isEmpty(itemFormDto.itemImgDtoList)}">
+                                        <div class="form-group" th:each="itemImgDto, status: ${itemFormDto.itemImgDtoList}">
+                                            <div class="label">
+                                                <div class="pseudo">
+                                                    <input type="file" class="text-wrapper-13" name="itemImgFile">
+                                                    <input type="hidden" name="itemImgIds" th:value="${itemImgDto.id}">
+                                                </div>
+                                                <label class="form-control file-upload-info"
+                                                       th:text="${not #strings.isEmpty(itemImgDto.imgori)} ? ${itemImgDto.imgori} : '상품이미지' + ${status.index+1}"></label>
                                             </div>
-                                            <label class="custom-file-label"
-                                                   th:text="${not #strings.isEmpty(itemImgDto.iimgori)} ? ${itemImgDto.iimgori} : '상품이미지' + ${status.index+1}"></label>
                                         </div>
                                     </div>
-                                </div>-->
 
+                                </div>
 
                                 <br>
-                                <button type="submit" th:formaction="@{/item/register}"
-                                         class="btn btn-primary mr-2">등록하기</button>
+
+                                <button th:if="${#strings.isEmpty(itemFormDto.id)}" th:formaction="@{/item/register}"
+                                        type="submit" class="btn btn-primary mr-2">등록하기</button>
+                                <button th:unless="${#strings.isEmpty(itemFormDto.id)}"
+                                        th:formaction="@{'/admin/item/' + ${itemFormDto.id} }" type="submit"
+                                        class="btn btn-primary mr-2">수정하기</button>
                                 <button class="btn btn-light">취소</button>
                             </form>
                         </div>

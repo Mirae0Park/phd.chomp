@@ -37,5 +37,8 @@ public class ItemFormDto {
 
     private List<Long> itemImgIds = new ArrayList<>(); // 상품의 이미지 아이디를 저장하는 리스트
 
+    public static ItemFormDto of(Item item){ // dto 객체의 데이터를 복사하여 복사한 객체를 반환해줌
+        return modelMapper.map(item, ItemFormDto.class);
+    } // modelMapper 이용
 
 }

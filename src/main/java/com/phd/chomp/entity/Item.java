@@ -1,6 +1,7 @@
 package com.phd.chomp.entity;
 
 import com.phd.chomp.constant.ItemSellStatus;
+import com.phd.chomp.dto.ItemFormDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import lombok.*;
 public class Item extends BaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -34,5 +35,14 @@ public class Item extends BaseEntity{
     private String cate; // 카테고리
 
     private ItemSellStatus itemSellStatus;
+
+    public void updateItem(ItemFormDto itemFormDto){
+        this.itemName = itemFormDto.getItemName();
+        this.price = itemFormDto.getPrice();
+        this.cate = itemFormDto.getCate();
+        this.stock = itemFormDto.getStock();
+        this.itemDetail = itemFormDto.getItemDetail();
+        this.itemSellStatus = itemFormDto.getItemSellStatus();
+    }
 
 }
