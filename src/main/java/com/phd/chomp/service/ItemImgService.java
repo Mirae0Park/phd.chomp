@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,10 +30,21 @@ public class ItemImgService {
         String oriImgName = itemImgFile.getOriginalFilename();
         String imgName = "";
         String imgurl = "";
+        String repImgName = "";
 
         // 파일 업로드
-        if(!StringUtils.isEmpty(oriImgName)) {
-            imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes());
+        if (!StringUtils.isEmpty(oriImgName)) {
+
+            // 대표 이미지를 썸네일로 만들어서 저장
+            if (itemImg.getRepimgYn().equals("Y")) {
+                imgName = fileService.saveThumbnail(itemImgLocation, oriImgName, itemImgFile.getBytes());
+            }
+
+            // 일반 이미지 저장
+            if (itemImg.getRepimgYn().equals("N")) {
+                imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes());
+            }
+
             imgurl = "/images/productImages/" + imgName;
         }
 
@@ -41,15 +54,15 @@ public class ItemImgService {
 
     }
 
-    public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception{
+    public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception {
 
         log.info("ItemImgService updateItemImg");
 
-        if (!itemImgFile.isEmpty()){ // 상품 이미지를 수정한 경우 상품 이미지를 업데이트
+        if (!itemImgFile.isEmpty()) { // 상품 이미지를 수정한 경우 상품 이미지를 업데이트
             ItemImg savedItemImg = itemImgRepository.findById(itemImgId).orElseThrow(EntityNotFoundException::new);
 
             // 기존 이미지 파일 삭제
-            if (!StringUtils.isEmpty(savedItemImg.getImgName())){
+            if (!StringUtils.isEmpty(savedItemImg.getImgName())) {
                 fileService.deleteFile(itemImgLocation + "/" + savedItemImg.getImgName());
             }
 

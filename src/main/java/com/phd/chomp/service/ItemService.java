@@ -55,8 +55,6 @@ public class ItemService {
             itemImgService.saveItemImg(itemImg, itemImgFileList.get(i));
         }
 
-
-
         return item.getId();
     }
 
