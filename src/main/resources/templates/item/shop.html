@@ -134,13 +134,14 @@
                 </div>
             </div>
 
-            <th:block th:each="item, status: ${items.getContent()}">
-                <div class="row product-lists">
-                    <div class="col-lg-4 col-md-6 text-center strawberry">
+            <div class="row">
+                <th:block th:each="item, status: ${items.getContent()}">
+                    <div class="col-lg-4 col-md-6 text-center">
                         <div class="single-product-item">
                             <a th:href="@{/item/register}"> <!--+ ${item.id}-->
                                 <div class="product-image">
-                                    <img th:src="${item.imgUrl}" class="div-product-item-pic" th:alt="${item.itemName}">
+                                    <img th:src="${item.imgUrl}" class="div-product-item-pic"
+                                         th:alt="${item.itemName}">
                                 </div>
                                 <h3>[[${item.itemName}]]</h3>
 
@@ -154,11 +155,12 @@
                                 <div th:if="${item.itemSellStatus == T(com.phd.chomp.constant.ItemSellStatus).SOLD_OUT}"
                                      class="heading">품절
                                 </div>
-                                <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+                                <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to
+                                    Cart</a>
                             </a>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 text-center berry">
+                    <!--<div class="col-lg-4 col-md-6 text-center berry">
                         <div class="single-product-item">
                             <div class="product-image">
                                 <a href="single-product.html"><img src="img/products/product-img-1.jpg" alt=""></a>
@@ -168,7 +170,7 @@
                             <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
                         </div>
                     </div>
-                    <!--<div class="col-lg-4 col-md-6 text-center berry">
+                    <div class="col-lg-4 col-md-6 text-center strawberry">
                         <div class="single-product-item">
                             <div class="product-image">
                                 <a href="single-product.html"><img src="img/products/product-img-2.jpg" alt=""></a>
@@ -218,8 +220,8 @@
                             <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
                         </div>
                     </div>-->
-                </div>
-            </th:block>
+                </th:block>
+            </div>
 
             <div class="row">
                 <div class="col-lg-12 text-center">
