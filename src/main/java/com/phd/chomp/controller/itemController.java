@@ -144,6 +144,8 @@ public class itemController {
             model.addAttribute("username", username);
         }
 
+        log.info(itemFormDto.getItemImgDtoList());
+
         return "item/itemDetail";
 
     }
