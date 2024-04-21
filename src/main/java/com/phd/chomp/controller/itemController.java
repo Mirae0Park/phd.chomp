@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,5 +124,27 @@ public class itemController {
         model.addAttribute("maxPage", 3);
 
         return "item/shop";
+    }
+
+    @GetMapping(value = "/item/{itemId}")
+    public String productDetail(Model model, @PathVariable("itemId") Long itemId, Principal principal){
+
+        ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
+
+        if (itemFormDto == null) {
+            // Handle the case where item is not found (null)
+            // For example, you can redirect to an error page or homepage
+            return "redirect:/"; // Redirect to homepage
+        }
+
+        model.addAttribute("item", itemFormDto);
+
+        if (principal != null) {
+            String username = principal.getName();
+            model.addAttribute("username", username);
+        }
+
+        return "item/itemDetail";
+
     }
 }
