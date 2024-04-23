@@ -3,6 +3,70 @@
 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	  layout:decorate="~{layout/layout2}">
 
+<div layout:script>
+	<!-- 사용자 스크립트 추가 -->
+	<script th:inline="javascript">
+		$(document).ready(function () {
+
+            calculateTotalPrice();
+
+            $("#count").change(function () {
+                calculateTotalPrice();
+            });
+        });
+
+        function addCart() {
+
+            var username = [[${username}]];
+            var userRole = [[${userRole}]];
+            var itemStatus = document.getElementById('itemStatus').value;
+
+            console.log(itemStatus);
+
+            if (itemStatus === 'SOLD_OUT') {
+                alert('품절 상품입니다!');
+                return;
+            }
+
+            if (userRole === 'ADMIN') {
+                alert('권한이 없습니다!');
+                return;
+            }
+
+            var url = "/cart";
+            var paramData = {
+                itemId: $("#itemId").val(),
+                count: $("#count").val()
+            };
+
+            var param = JSON.stringify(paramData);
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                contentType: "application/json",
+                data: param,
+                dataType: "json",
+                cache: false,
+                success: function (result, status) {
+                    alert("상품을 장바구니에 담았습니다.");
+                    location.href = '/cart';
+                },
+                error: function (jqXHR, status, error) {
+
+                    if (username == null) {
+                        alert('로그인 후 이용해주세요');
+                        location.href = '/member/login';
+                    } else {
+                        alert(jqXHR.responseText);
+                    }
+
+                }
+            });
+        }
+
+	</script>
+</div>
 <div layout:fragment="content">
 	
 	<!--PreLoader-->
@@ -12,74 +76,6 @@
         </div>
     </div>
     <!--PreLoader Ends-->
-	
-	<!-- header -->
-	<div class="top-header-area" id="sticker">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12 col-sm-12 text-center">
-					<div class="main-menu-wrap">
-						<!-- logo -->
-						<div class="site-logo">
-							<a href="index.html">
-								<img src="/img/logo.png" alt="">
-							</a>
-						</div>
-						<!-- logo -->
-
-						<!-- menu start -->
-						<nav class="main-menu">
-							<ul>
-								<li class="current-list-item"><a href="#">Home</a>
-									<ul class="sub-menu">
-										<li><a href="index.html">Static Home</a></li>
-										<li><a href="index_2.html">Slider Home</a></li>
-									</ul>
-								</li>
-								<li><a href="about.html">About</a></li>
-								<li><a href="#">Pages</a>
-									<ul class="sub-menu">
-										<li><a href="404.html">404 page</a></li>
-										<li><a href="about.html">About</a></li>
-										<li><a href="cart.html">Cart</a></li>
-										<li><a href="checkout.html">Check Out</a></li>
-										<li><a href="contact.html">Contact</a></li>
-										<li><a href="news.html">News</a></li>
-										<li><a href="shop.html">Shop</a></li>
-									</ul>
-								</li>
-								<li><a href="news.html">News</a>
-									<ul class="sub-menu">
-										<li><a href="news.html">News</a></li>
-										<li><a href="single-news.html">Single News</a></li>
-									</ul>
-								</li>
-								<li><a href="contact.html">Contact</a></li>
-								<li><a href="shop.html">Shop</a>
-									<ul class="sub-menu">
-										<li><a href="shop.html">Shop</a></li>
-										<li><a href="checkout.html">Check Out</a></li>
-										<li><a href="itemDetail.html">Single Product</a></li>
-										<li><a href="cart.html">Cart</a></li>
-									</ul>
-								</li>
-								<li>
-									<div class="header-icons">
-										<a class="shopping-cart" href="cart.html"><i class="fas fa-shopping-cart"></i></a>
-										<a class="mobile-hide search-bar-icon" href="#"><i class="fas fa-search"></i></a>
-									</div>
-								</li>
-							</ul>
-						</nav>
-						<a class="mobile-show search-bar-icon" href="#"><i class="fas fa-search"></i></a>
-						<div class="mobile-menu"></div>
-						<!-- menu end -->
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end header -->
 
 	<!-- search area -->
 	<div class="search-area">
