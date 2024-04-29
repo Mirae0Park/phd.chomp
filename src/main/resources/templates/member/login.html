@@ -28,10 +28,12 @@
                 data: jsonData,
                 success: function(response) {
                     // 로그인 성공 시 토큰을 받음
-                    var token = response.token;
+                    var accessToken = response.accessToken;
+                    var refreshToken = response.refreshToken;
 
                     // 토큰을 로컬 스토리지에 저장
-                    localStorage.setItem('token', token);
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
 
                     // 다른 페이지로 이동
                     window.location.href = '/join'; // 이동할 페이지 URL

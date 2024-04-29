@@ -9,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +35,12 @@ public class AuthController {
     public ResponseEntity<TokenDto> login (@RequestBody MemberRequestDto memberRequestDto){
         log.info("Auth Controller Login method.....");
 
-        return ResponseEntity.ok(authService.login(memberRequestDto));
+        TokenDto tokenDto = authService.login(memberRequestDto);
+
+        log.info("RefreshToken : " + tokenDto.getRefreshToken());
+        log.info("AccessToken : " + tokenDto.getAccessToken());
+
+        return ResponseEntity.ok(tokenDto);
     }
 
     @PostMapping("/reissue") // 재발급

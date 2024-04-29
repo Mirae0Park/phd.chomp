@@ -1,6 +1,7 @@
 package com.phd.chomp.jwt;
 
 import com.phd.chomp.dto.TokenDto;
+import com.phd.chomp.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -31,7 +32,7 @@ public class TokenProvider {
 
     private final Key key;
 
-    public TokenProvider(@Value("${jwt.secret}") String secretKey) { // 생성자
+    public TokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -79,7 +80,7 @@ public class TokenProvider {
         }
 
         // 클레임에서 권한 정보 가져오기
-        Collection < ? extends  GrantedAuthority > authorities =
+        Collection< ? extends  GrantedAuthority > authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());

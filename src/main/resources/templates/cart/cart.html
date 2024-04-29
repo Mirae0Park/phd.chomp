@@ -1,237 +1,345 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  layout:decorate="~{layout/layout2}">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout2}">
+
+<div layout:fragment="script">
+
+    <script th:inline="javascript">
+
+        var selectedItems = [];
+        var cartItemIds = []; // 추가: 선택된 아이템들의 cartItemId를 저장하는 배열
+
+        $(document).ready(function () {
+            checkCartItems();
+
+            $("input[name=cartChkBox]").change(function () {
+                var orderTotalPrice = getOrderTotalPrice();
+                $("#orderTotalPrice").html(orderTotalPrice + '원');
+            });
+        });
+
+        function checkCartItems() {
+            if ($(".table-body-row").length === 0) {
+                alert('장바구니가 비어있습니다!');
+                window.location.href = '/';
+            }
+        }
+
+        function getOrderTotalPrice() {
+            var orderTotalPrice = 0;
+            $("input[name=cartChkBox]:checked").each(function () {
+                var cartItemId = $(this).val();
+                var price = $("#price_" + cartItemId).attr("data-price");
+                var count = $("#count_" + cartItemId).val();
+                var subTotalPrice = price * count;
+                orderTotalPrice += subTotalPrice;
+            });
+
+            // 콤마를 추가하여 숫자를 포맷팅
+            const formattedOrderTotal = orderTotalPrice.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+
+            // 포맷팅된 주문 총 금액을 콘솔에 출력 (선택적)
+            console.log("formattedOrderTotal:", formattedOrderTotal);
+
+            return formattedOrderTotal;
+        }
+
+        function changeCount(obj) {
+            var count = obj.value;
+            var cartItemId = obj.id.split('_')[1];
+            var price = $("#price_" + cartItemId).data("price");
+            var totalPrice = price * count;
+
+            console.log("count:", count);
+            console.log("cartItemId:", cartItemId);
+            console.log("price:", price);
+            console.log("totalPrice:", totalPrice);
+
+            $("#totalPrice_" + cartItemId).html(totalPrice + "원");
+
+            // 주문 데이터 업데이트
+            updateOrderData(cartItemId, count);
+
+            var orderTotalPrice = getOrderTotalPrice();
+            $("#orderTotalPrice").html(orderTotalPrice + '원');
+        }
+
+        function checkAll() {
+            if ($("#checkall").prop("checked")) {
+                $("input[name=cartChkBox]").prop("checked", true);
+            } else {
+                $("input[name=cartChkBox]").prop("checked", false);
+            }
+            var orderTotalPrice = getOrderTotalPrice();
+            $("#orderTotalPrice").html(orderTotalPrice + '원');
+        }
+
+
+        function deleteCartItem(obj) {
+            var cartItemId = obj.dataset.id;
+            var url = "/cartItem/" + cartItemId;
+
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                dataType: "json",
+                cache: false,
+                success: function (result, status) {
+                    location.href = '/cart';
+                },
+                error: function (jqXHR, status, error) {
+
+                    if (jqXHR.status == '401') {
+                        alert('로그인 후 이용해주세요');
+                        location.href = '/members/login';
+                    } else {
+                        alert(jqXHR.responseJSON.message);
+                    }
+
+                }
+            });
+        }
+
+        function updateOrderData(cartItemId, count) {
+            // 선택된 아이템 배열에서 해당 cartItemId를 찾아 업데이트
+            for (var i = 0; i < selectedItems.length; i++) {
+                if (selectedItems[i].cartItemId === cartItemId) {
+                    selectedItems[i].count = count;
+                    break;
+                }
+            }
+        }
+
+        function orders() {
+
+            $("input[name='cartChkBox']:checked").each(function () {
+                var cartItemId = $(this).val();
+                var itemNm = $("#itemNm_" + cartItemId).attr("data-name");
+                var quantity = $("#count_" + cartItemId).val();
+                var price = parseFloat($("#price_" + cartItemId).attr("data-price"));
+
+                var cartItemDto = {
+                    cartItemId: cartItemId,
+                    itemNm: itemNm,
+                    count: quantity,
+                    price: price*quantity,
+                    imgUrl: ''
+                };
+
+                selectedItems.push(cartItemDto);
+                cartItemIds.push(cartItemId); // 추가: cartItemId를 배열에 저장
+            });
+
+            var orderTotalPrice = parseFloat($("#orderTotalPrice").text());
+
+            var cartDetailDto = {
+                cartDetailDto: selectedItems,
+                orderTotalPrice: orderTotalPrice,
+                cartItemIds: cartItemIds // 추가: cartItemId 배열을 전달
+            };
+
+            // 페이지 이동 시 데이터를 함께 전달
+            window.location.href = "/checkout?orderData=" + encodeURIComponent(JSON.stringify(cartDetailDto))
+                + "&cartItemId=" + encodeURIComponent(cartItemIds);
+        }
+
+    </script>
+
+</div>
 <div layout:fragment="content">
-	
-	<!--PreLoader-->
+    <script th:inline="javascript">
+
+
+    </script>
+
+    <!--PreLoader-->
     <div class="loader">
         <div class="loader-inner">
             <div class="circle"></div>
         </div>
     </div>
     <!--PreLoader Ends-->
-	
-	<!-- header -->
-	<div class="top-header-area" id="sticker">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12 col-sm-12 text-center">
-					<div class="main-menu-wrap">
-						<!-- logo -->
-						<div class="site-logo">
-							<a href="index.html">
-								<img src="img/logo.png" alt="">
-							</a>
-						</div>
-						<!-- logo -->
 
-						<!-- menu start -->
-						<nav class="main-menu">
-							<ul>
-								<li class="current-list-item"><a href="#">Home</a>
-									<ul class="sub-menu">
-										<li><a href="index.html">Static Home</a></li>
-										<li><a href="index_2.html">Slider Home</a></li>
-									</ul>
-								</li>
-								<li><a href="about.html">About</a></li>
-								<li><a href="#">Pages</a>
-									<ul class="sub-menu">
-										<li><a href="404.html">404 page</a></li>
-										<li><a href="about.html">About</a></li>
-										<li><a href="cart.html">Cart</a></li>
-										<li><a href="../order/checkout.html">Check Out</a></li>
-										<li><a href="contact.html">Contact</a></li>
-										<li><a href="news.html">News</a></li>
-										<li><a href="shop.html">Shop</a></li>
-									</ul>
-								</li>
-								<li><a href="news.html">News</a>
-									<ul class="sub-menu">
-										<li><a href="news.html">News</a></li>
-										<li><a href="single-news.html">Single News</a></li>
-									</ul>
-								</li>
-								<li><a href="contact.html">Contact</a></li>
-								<li><a href="shop.html">Shop</a>
-									<ul class="sub-menu">
-										<li><a href="shop.html">Shop</a></li>
-										<li><a href="../order/checkout.html">Check Out</a></li>
-										<li><a href="single-product.html">Single Product</a></li>
-										<li><a href="cart.html">Cart</a></li>
-									</ul>
-								</li>
-								<li>
-									<div class="header-icons">
-										<a class="shopping-cart" href="cart.html"><i class="fas fa-shopping-cart"></i></a>
-										<a class="mobile-hide search-bar-icon" href="#"><i class="fas fa-search"></i></a>
-									</div>
-								</li>
-							</ul>
-						</nav>
-						<a class="mobile-show search-bar-icon" href="#"><i class="fas fa-search"></i></a>
-						<div class="mobile-menu"></div>
-						<!-- menu end -->
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end header -->
+    <!-- search area -->
+    <div class="search-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <span class="close-btn"><i class="fas fa-window-close"></i></span>
+                    <div class="search-bar">
+                        <div class="search-bar-tablecell">
+                            <h3>Search For:</h3>
+                            <input type="text" placeholder="Keywords">
+                            <button type="submit">Search <i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end search arewa -->
 
-	<!-- search area -->
-	<div class="search-area">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<span class="close-btn"><i class="fas fa-window-close"></i></span>
-					<div class="search-bar">
-						<div class="search-bar-tablecell">
-							<h3>Search For:</h3>
-							<input type="text" placeholder="Keywords">
-							<button type="submit">Search <i class="fas fa-search"></i></button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end search arewa -->
-	
-	<!-- breadcrumb-section -->
-	<div class="breadcrumb-section breadcrumb-bg">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-8 offset-lg-2 text-center">
-					<div class="breadcrumb-text">
-						<p>Fresh and Organic</p>
-						<h1>Cart</h1>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end breadcrumb section -->
+    <!-- breadcrumb-section -->
+    <div class="breadcrumb-section breadcrumb-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="breadcrumb-text">
+                        <p>Fresh and Organic</p>
+                        <h1>Cart</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end breadcrumb section -->
 
-	<!-- cart -->
-	<div class="cart-section mt-150 mb-150">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-8 col-md-12">
-					<div class="cart-table-wrap">
-						<table class="cart-table">
-							<thead class="cart-table-head">
-								<tr class="table-head-row">
-									<th class="product-remove"></th>
-									<th class="product-image">Product Image</th>
-									<th class="product-name">Name</th>
-									<th class="product-price">Price</th>
-									<th class="product-quantity">Quantity</th>
-									<th class="product-total">Total</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="table-body-row">
-									<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-									<td class="product-image"><img src="img/products/product-img-1.jpg" alt=""></td>
-									<td class="product-name">Strawberry</td>
-									<td class="product-price">$85</td>
-									<td class="product-quantity"><input type="number" placeholder="0"></td>
-									<td class="product-total">1</td>
-								</tr>
-								<tr class="table-body-row">
-									<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-									<td class="product-image"><img src="img/products/product-img-2.jpg" alt=""></td>
-									<td class="product-name">Berry</td>
-									<td class="product-price">$70</td>
-									<td class="product-quantity"><input type="number" placeholder="0"></td>
-									<td class="product-total">1</td>
-								</tr>
-								<tr class="table-body-row">
-									<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-									<td class="product-image"><img src="img/products/product-img-3.jpg" alt=""></td>
-									<td class="product-name">Lemon</td>
-									<td class="product-price">$35</td>
-									<td class="product-quantity"><input type="number" placeholder="0"></td>
-									<td class="product-total">1</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
+    <!-- cart -->
+    <div class="cart-section mt-150 mb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-md-12">
+                    <div class="cart-table-wrap">
+                        <table class="cart-table">
+                            <thead class="cart-table-head">
+                            <tr class="table-head-row">
+                                <th class="product-remove"><!--<input class="row-cell-checkall" type="checkbox" id="checkall"
+																	  onclick="checkAll()"> Check All--></th>
+                                <th class="product-image">Product Image</th>
+                                <th class="product-name">Name</th>
+                                <!--<th class="product-price">Price</th>-->
+                                <th class="product-quantity">Quantity</th>
+                                <th class="product-total">Total</th>
+                            </tr>
+                            </thead>
+                            <!--<tbody>
+                            <tr class="table-body-row">
+                                <td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
+                                <td class="product-image"><img src="img/products/product-img-1.jpg" alt=""></td>
+                                <td class="product-name">Strawberry</td>
+                                <td class="product-price">$85</td>
+                                <td class="product-quantity"><input type="number" placeholder="0"></td>
+                                <td class="product-total">1</td>
+                            </tr>
+                            </tbody>-->
 
-				<div class="col-lg-4">
-					<div class="total-section">
-						<table class="total-table">
-							<thead class="total-table-head">
-								<tr class="table-total-row">
-									<th>Total</th>
-									<th>Price</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="total-data">
-									<td><strong>Subtotal: </strong></td>
-									<td>$500</td>
-								</tr>
-								<tr class="total-data">
-									<td><strong>Shipping: </strong></td>
-									<td>$45</td>
-								</tr>
-								<tr class="total-data">
-									<td><strong>Total: </strong></td>
-									<td>$545</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="cart-buttons">
-							<a href="cart.html" class="boxed-btn">Update Cart</a>
-							<a href="../order/checkout.html" class="boxed-btn black">Check Out</a>
-						</div>
-					</div>
 
-					<div class="coupon-section">
-						<h3>Apply Coupon</h3>
-						<div class="coupon-form-wrap">
-							<form action="index.html">
-								<p><input type="text" placeholder="Coupon"></p>
-								<p><input type="submit" value="Apply"></p>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end cart -->
+                            <tbody>
+                            <tr class="table-body-row">
+                                <th:block th:each="cartItem : ${cartItems}">
+                                    <!--<input class="row-cell-checkall3" type="checkbox" name="cartChkBox"
+                                           th:value="${cartItem.getCartItemId()}">-->
+                                    <!--<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>-->
+                                    <td class="product-remove"><a href="#"><i class="far fa-window-close" type="button"
+                                                                              aria-label="Close">
+                            <span aria-hidden="true" th:data-id="${cartItem.cartItemId}"
+                                  onclick="deleteCartItem(this)"></span>
+                                    </i></a></td>
 
-	<!-- logo carousel -->
-	<div class="logo-carousel-section">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="logo-carousel-inner">
-						<div class="single-logo-item">
-							<img src="img/company-logos/1.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="img/company-logos/2.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="img/company-logos/3.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="img/company-logos/4.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="img/company-logos/5.png" alt="">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end logo carousel -->
+                                    <td class="product-image"><img class="data-cart-jpg" th:src="${cartItem.imgUrl}"
+                                                                   th:alt="${cartItem.itemName}"
+                                                                   th:attr="data-itemnm=${cartItem.itemName}"/></td>
+                                    <td class="product-name"><span th:id="'itemNm_' + ${cartItem.cartItemId}"
+                                                                   th:data-name="${cartItem.itemName}"
+                                                                   th:text="${cartItem.itemName}"></span></td>
+                                    <span th:id="'price_' + ${cartItem.cartItemId}" th:data-price="${cartItem.price}"
+                                          data-th-text="| ${#numbers.formatInteger(cartItem.price, 3, 'COMMA')} 원 |"
+                                          style="display: none;">
+                                    </span><!--화면에는 출력하지 않음-->
+
+                                    <!--<td class="product-price">$85</td>-->
+                                    <td class="product-quantity"><input type="number" name="count"
+                                                                        th:id="'count_' + ${cartItem.cartItemId}"
+                                                                        th:value="${cartItem.count}"
+                                                                        min="1" onchange="changeCount(this)"
+                                                                        class="text-wrapper-3"></td>
+                                    <td class="product-total"><span th:id="'totalPrice_' + ${cartItem.cartItemId}"
+                                                                    class="totalPrice"
+                                                                    name="totalPrice"
+                                                                    data-th-text="| ${#numbers.formatInteger(cartItem.price * cartItem.count, 3, 'COMMA')} 원 |">
+                                                            </span></td>
+                                </th:block>
+                            </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="total-section">
+                        <table class="total-table">
+                            <thead class="total-table-head">
+                            <tr class="table-total-row">
+                                <th>Total</th>
+                                <th>Price</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="total-data">
+                                <td><strong>Subtotal: </strong></td>
+                                <td>$500</td>
+                            </tr>
+                            <tr class="total-data">
+                                <td><strong>Shipping: </strong></td>
+                                <td>3000원</td>
+                            </tr>
+                            <tr class="total-data">
+                                <td><strong>Total: </strong></td>
+                                <td><span th:id="orderTotalPrice"
+                                          data-order-total="0">0원</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="cart-buttons">
+                            <!--<a href="cart.html" class="boxed-btn">Update Cart</a>-->
+                            <!--<a href="../order/checkout.html" class="boxed-btn black">Check Out</a>-->
+                            <a type="button" class="boxed-btn black" onclick="orders()">Check Out</a>
+                        </div>
+                    </div>
+
+                    <!--<div class="coupon-section">
+                        <h3>Apply Coupon</h3>
+                        <div class="coupon-form-wrap">
+                            <form action="index.html">
+                                <p><input type="text" placeholder="Coupon"></p>
+                                <p><input type="submit" value="Apply"></p>
+                            </form>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end cart -->
+
+    <!-- logo carousel -->
+    <div class="logo-carousel-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="logo-carousel-inner">
+                        <div class="single-logo-item">
+                            <img src="img/company-logos/1.png" alt="">
+                        </div>
+                        <div class="single-logo-item">
+                            <img src="img/company-logos/2.png" alt="">
+                        </div>
+                        <div class="single-logo-item">
+                            <img src="img/company-logos/3.png" alt="">
+                        </div>
+                        <div class="single-logo-item">
+                            <img src="img/company-logos/4.png" alt="">
+                        </div>
+                        <div class="single-logo-item">
+                            <img src="img/company-logos/5.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end logo carousel -->
 </div>
 </html>

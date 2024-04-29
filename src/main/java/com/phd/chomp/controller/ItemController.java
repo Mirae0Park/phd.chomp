@@ -27,7 +27,7 @@ import java.util.Optional;
 @Controller
 @RequiredArgsConstructor
 @Log4j2
-public class itemController {
+public class ItemController {
 
     private final ItemService itemService;
 
@@ -42,7 +42,7 @@ public class itemController {
                           Model model, @RequestParam("itemImgFile") List<MultipartFile> itemImgFileList) {
         // 상품 등록하기
 
-        log.info("itemController.............................");
+        log.info("ItemController.............................");
 
         if (bindingResult.hasErrors()) {
             return "item/itemRegister";
@@ -54,7 +54,7 @@ public class itemController {
         }
 
         try {
-            log.info("itemController : " + itemImgFileList);
+            log.info("ItemController : " + itemImgFileList);
             itemService.saveItem(itemFormDto, itemImgFileList);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "상품 등록 중 에러가 발생하였습니다.");

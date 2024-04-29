@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Collections;
 
@@ -49,12 +50,18 @@ public class SecurityConfig {
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                         CorsConfiguration config = new CorsConfiguration();
+
                         config.setAllowCredentials(true);
-                        config.setAllowedOrigins(Collections.singletonList("http://localhost:80"));
+                        config.setAllowedOrigins(Collections.singletonList("*"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
+                        config.addAllowedOriginPattern("*");
+                        config.addExposedHeader("Authorization");
+                        source.registerCorsConfiguration("/**", config);
                         config.setMaxAge(3600L); //1시간
+
                         return config;
                     }
                 }))

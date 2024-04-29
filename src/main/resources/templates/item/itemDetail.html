@@ -4,6 +4,10 @@
 	  layout:decorate="~{layout/layout2}">
 
 <div layout:script>
+
+</div>
+<div layout:fragment="content">
+
 	<!-- 사용자 스크립트 추가 -->
 	<script th:inline="javascript">
 		$(document).ready(function () {
@@ -15,21 +19,31 @@
             });
         });
 
+
+    	function calculateTotalPrice(){
+
+        	var count = $("#count").val();
+        	var price = $("#price").val();
+        	var totalPrice = price*count;
+
+        	$("#totalPrice").html(totalPrice + '원');
+    	}
+
         function addCart() {
 
-            var username = [[${username}]];
-            var userRole = [[${userRole}]];
-            var itemStatus = document.getElementById('itemStatus').value;
+            var accessToken = localStorage.getItem('accessToken');
+    		var refreshToken = localStorage.getItem('refreshToken');
 
-            console.log(itemStatus);
+    		if (!accessToken || !refreshToken) {
+        		alert('로그인 후 이용해주세요');
+        		location.href = '/login';
+        		return;
+    		}
+
+    		var itemStatus = document.getElementById('itemStatus').value;
 
             if (itemStatus === 'SOLD_OUT') {
                 alert('품절 상품입니다!');
-                return;
-            }
-
-            if (userRole === 'ADMIN') {
-                alert('권한이 없습니다!');
                 return;
             }
 
@@ -42,32 +56,32 @@
             var param = JSON.stringify(paramData);
 
             $.ajax({
-                url: url,
-                type: "POST",
-                contentType: "application/json",
-                data: param,
-                dataType: "json",
-                cache: false,
-                success: function (result, status) {
-                    alert("상품을 장바구니에 담았습니다.");
-                    location.href = '/cart';
-                },
-                error: function (jqXHR, status, error) {
+        		url: url,
+        		type: "POST",
+        		contentType: "application/json",
+        		data: param,
+        		dataType: "json",
+        		cache: false,
+        		beforeSend: function(xhr) {
+            		xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        		},
+        		success: function(result, status, xhr) {
+            		alert("상품을 장바구니에 담았습니다.");
 
-                    if (username == null) {
-                        alert('로그인 후 이용해주세요');
-                        location.href = '/member/login';
-                    } else {
-                        alert(jqXHR.responseText);
-                    }
+            		var userId = result.userId; // 반환된 사용자 아이디
 
-                }
-            });
+    				location.href = '/cart?userId=' + userId;
+
+            		<!--location.href = '/cart';-->
+
+        		},
+        		error: function(jqXHR, status, error) {
+            		alert(jqXHR.responseText);
+        		}
+    		});
         }
 
 	</script>
-</div>
-<div layout:fragment="content">
 	
 	<!--PreLoader-->
     <div class="loader">
