@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,5 +88,24 @@ public class CartServiceImpl implements CartService{
 
         cartDetailDtoList = cartItemRepository.findCartDetailDtoList(cart.getId());
         return cartDetailDtoList;
+    }
+
+    @Override
+    public boolean validateCartItem(Long cartItemId, String uid) {
+        Member member = memberRepository.findWithRoleSetByUid(uid);
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(EntityNotFoundException::new);
+        Member saveMember = cartItem.getCart().getMember();
+
+        if (!StringUtils.equals(member.getUid(), saveMember.getUid())){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void deleteCartItem(Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(EntityNotFoundException::new);
+        cartItemRepository.delete(cartItem);
+
     }
 }

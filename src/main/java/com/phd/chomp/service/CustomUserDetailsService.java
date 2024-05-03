@@ -1,5 +1,6 @@
 package com.phd.chomp.service;
 
+import com.phd.chomp.config.UserDetailImpl;
 import com.phd.chomp.entity.Member;
 import com.phd.chomp.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return memberRepository.findByUid(username)
-                .map(this::createUserDetails)
-                .orElseThrow(() -> new UsernameNotFoundException(username + "데이터베이스에서 찾을 수 없습니다."));
+        Member member = memberRepository.findByUid(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        return new UserDetailImpl(member, member.getPw(), member.getUid());
     }
 
     // DB 에 User 값이 존재한다면 UserDetails 객체로 만들어서 리턴

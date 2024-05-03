@@ -2,12 +2,14 @@ package com.phd.chomp.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -43,14 +45,27 @@ public class JwtFilter extends OncePerRequestFilter { // Spring Request 앞단�
         filterChain.doFilter(request, response);
     }
 
-    // Request Header 에서 토큰 정보를 꺼내오기
+    // Request Header 에서 토큰 정보를 꺼내오기 -> 헤더에 토큰이 없으면 쿠키 검사
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+
+        if (bearerToken == null){
+            Cookie[] cookies = request.getCookies(); // 모든 쿠키 가져오기
+            if (cookies != null) {
+                for (Cookie c : cookies){
+                    String name = c.getName(); // 쿠키 이름 가져오기
+
+                    String value = c.getValue(); // 쿠키 값 가져오기
+                    if (name.equals(AUTHORIZATION_HEADER)){
+                        bearerToken = value;
+                    }
+                }
+            }
+        }
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-
         return null;
     }
 }

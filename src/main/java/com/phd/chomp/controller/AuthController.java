@@ -5,6 +5,7 @@ import com.phd.chomp.dto.MemberResponseDto;
 import com.phd.chomp.dto.TokenDto;
 import com.phd.chomp.dto.TokenRequestDto;
 import com.phd.chomp.service.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.coyote.Response;
@@ -31,7 +32,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.signup(memberRequestDto));
     }
 
-    @PostMapping("/login") // 로그인
+    /*@PostMapping("/login") // 로그인
     public ResponseEntity<TokenDto> login (@RequestBody MemberRequestDto memberRequestDto){
         log.info("Auth Controller Login method.....");
 
@@ -41,10 +42,22 @@ public class AuthController {
         log.info("AccessToken : " + tokenDto.getAccessToken());
 
         return ResponseEntity.ok(tokenDto);
+    }*/
+
+    /*로그인 API*/
+    @PostMapping("/login")
+    public ResponseEntity<TokenDto> login(@RequestBody MemberRequestDto requestDto, HttpServletResponse response) {
+        log.info("Auth Controller Login method.....");
+
+        TokenDto tokenDto = authService.login(requestDto, response);
+
+        log.info("AccessToken : " + tokenDto.getAccessToken());
+
+        return ResponseEntity.ok(tokenDto);
     }
 
-    @PostMapping("/reissue") // 재발급
+    /*@PostMapping("/reissue") // 재발급
     public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto tokenRequestDto) {
         return ResponseEntity.ok(authService.reissue(tokenRequestDto));
-    }
+    }*/
 }

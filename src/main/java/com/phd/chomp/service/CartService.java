@@ -14,4 +14,8 @@ public interface CartService {
     Long addCart(CartItemDto cartItemDto, String id);
 
     List<CartDetailDto> getCartList(String id);
+
+    boolean validateCartItem(Long cartItemId, String uid);
+
+    void deleteCartItem(Long cartItemId);
 }

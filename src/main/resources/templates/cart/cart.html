@@ -22,7 +22,7 @@
         function checkCartItems() {
             if ($(".table-body-row").length === 0) {
                 alert('장바구니가 비어있습니다!');
-                window.location.href = '/';
+                window.location.href = '/index';
             }
         }
 
@@ -51,7 +51,7 @@
             var price = $("#price_" + cartItemId).data("price");
             var totalPrice = price * count;
 
-            console.log("count:", count);
+            console.log("count:", count);t
             console.log("cartItemId:", cartItemId);
             console.log("price:", price);
             console.log("totalPrice:", totalPrice);
@@ -75,10 +75,10 @@
             $("#orderTotalPrice").html(orderTotalPrice + '원');
         }
 
-
         function deleteCartItem(obj) {
             var cartItemId = obj.dataset.id;
-            var url = "/cartItem/" + cartItemId;
+            var userId = getUserIdFromUrl();
+            var url = "/cartItem/" + cartItemId + "/userId/" + userId;
 
             $.ajax({
                 url: url,
@@ -92,7 +92,7 @@
 
                     if (jqXHR.status == '401') {
                         alert('로그인 후 이용해주세요');
-                        location.href = '/members/login';
+                        location.href = '/login';
                     } else {
                         alert(jqXHR.responseJSON.message);
                     }
@@ -100,6 +100,12 @@
                 }
             });
         }
+
+        function getUserIdFromUrl() {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('userId');
+        }
+
 
         function updateOrderData(cartItemId, count) {
             // 선택된 아이템 배열에서 해당 cartItemId를 찾아 업데이트
@@ -231,11 +237,18 @@
                                     <!--<input class="row-cell-checkall3" type="checkbox" name="cartChkBox"
                                            th:value="${cartItem.getCartItemId()}">-->
                                     <!--<td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>-->
-                                    <td class="product-remove"><a href="#"><i class="far fa-window-close" type="button"
+                                    <!--<td class="product-remove"><button class="far fa-window-close" type="button"
                                                                               aria-label="Close">
                             <span aria-hidden="true" th:data-id="${cartItem.cartItemId}"
                                   onclick="deleteCartItem(this)"></span>
-                                    </i></a></td>
+                                    </button></a></td>-->
+                                    <td class="product-remove">
+                                        <button type="button" aria-label="Close">
+                            <span aria-hidden="true" th:data-id="${cartItem.cartItemId}"
+                                  onclick="deleteCartItem(this)">X</span>
+                                        </button></td>
+
+
 
                                     <td class="product-image"><img class="data-cart-jpg" th:src="${cartItem.imgUrl}"
                                                                    th:alt="${cartItem.itemName}"
@@ -341,5 +354,8 @@
         </div>
     </div>
     <!-- end logo carousel -->
+    <script th:inline="javascript">
+
+    </script>
 </div>
 </html>

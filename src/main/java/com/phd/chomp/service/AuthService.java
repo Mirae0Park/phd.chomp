@@ -3,20 +3,21 @@ package com.phd.chomp.service;
 import com.phd.chomp.dto.MemberRequestDto;
 import com.phd.chomp.dto.MemberResponseDto;
 import com.phd.chomp.dto.TokenDto;
-import com.phd.chomp.dto.TokenRequestDto;
 import com.phd.chomp.entity.Member;
-import com.phd.chomp.entity.RefreshToken;
+import com.phd.chomp.jwt.JwtFilter;
 import com.phd.chomp.jwt.TokenProvider;
 import com.phd.chomp.repository.MemberRepository;
 import com.phd.chomp.repository.RefreshTokenRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class AuthService {
         return MemberResponseDto.of(memberRepository.save(member));
     }
 
-    @Transactional
+    /*@Transactional
     public TokenDto login(MemberRequestDto memberRequestDto){
         // 1. Login Id/PW 를 기반으로 AuthenticationToken 생성
         UsernamePasswordAuthenticationToken authenticationToken = memberRequestDto.toAuthentication();
@@ -65,9 +66,44 @@ public class AuthService {
         // 5. 토큰 발급
         return tokenDto;
 
+    }*/
+
+    /*로그인*/
+    @Transactional
+    public TokenDto login(MemberRequestDto requestDto, HttpServletResponse response) {
+
+        Optional<Member> optionalMember = memberRepository.findByUid(requestDto.getUid());
+
+        if (optionalMember.isEmpty()) {
+            log.warn("회원이 존재하지 않음");
+            throw new IllegalArgumentException("회원이 존재하지 않음");
+        }
+
+        Member member = optionalMember.get();
+        TokenDto tokenDto = tokenProvider.createAccessToken(member.getUid(), member.getMemberRole());
+
+        /*비밀번호 다름.*/
+        if (!passwordEncoder.matches(requestDto.getPw(), member.getPw())) {
+            log.warn("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        /*토큰을 쿠키로 발급 및 응답에 추가*/
+        Cookie cookie = new Cookie(JwtFilter.AUTHORIZATION_HEADER,
+                TokenProvider.createReFreshToken(member.getUid()));
+
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 동안 유효
+        cookie.setPath("/");
+        cookie.setDomain("localhost");
+        cookie.setHttpOnly(true);  // httponly 옵션 설정
+        cookie.setSecure(true); // 패킷 암호화
+
+        response.addCookie(cookie);
+
+        return tokenDto;
     }
 
-    @Transactional
+    /*@Transactional
     public TokenDto reissue(TokenRequestDto tokenRequestDto){
         // 1. Refresh Token 검증
         if (!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())){
@@ -95,5 +131,5 @@ public class AuthService {
 
         // 토큰 발급
         return tokenDto;
-    }
+    }*/
 }

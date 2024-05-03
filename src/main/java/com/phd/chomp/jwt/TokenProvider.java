@@ -1,10 +1,12 @@
 package com.phd.chomp.jwt;
 
+import com.phd.chomp.constant.MemberRole;
 import com.phd.chomp.dto.TokenDto;
 import com.phd.chomp.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,13 +26,12 @@ import java.util.stream.Collectors;
 @Log4j2
 @Component // 개발자가 직접 작성한 Class를 Bean으로 등록
 public class TokenProvider {
-
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 100 * 60 * 60 * 24 * 7; // 7일
 
-    private final Key key;
+    private static Key key;
 
     public TokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -38,7 +39,7 @@ public class TokenProvider {
     }
 
     // 유저 정보를 가지고 AccessToken, RefreshToken을 생성함
-    public TokenDto generateTokenDto(Authentication authentication){
+    /*public TokenDto generateTokenDto(Authentication authentication){
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -68,6 +69,46 @@ public class TokenProvider {
                 .refreshToken(refreshToken) // refresh 토큰 객체
                 .build();
 
+    }*/
+
+    // 토큰 생성
+
+    public TokenDto createAccessToken(String uid, MemberRole role) {
+        /*Date date = new Date();*/
+        long now = (new Date()).getTime();
+
+        // Access Token 생성
+        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+        String accessToken = Jwts.builder()
+                .setSubject(uid)       // 회원 식별 id
+                .claim(AUTHORITIES_KEY, role)        // 권한
+                .setExpiration(accessTokenExpiresIn)        // 토큰이 만료될 시간
+                .signWith(key, SignatureAlgorithm.HS512)    // 비밀키, 암호화 알고리즘 이름
+                .compact();
+
+        return TokenDto.builder()
+                .grantType(BEARER_TYPE) // (전달자) 승인타입
+                .accessToken(accessToken) // access 토큰 객체
+                .accessTokenExpiresIn(accessTokenExpiresIn.getTime()) // access 토큰 만료될 시간
+                .build();
+
+        /*return BEARER_TYPE + Jwts.builder()
+                .setSubject(uid) //토큰 사용자의 이름
+                .claim(AUTHORITIES_KEY, role) //토큰 사용자의 권한
+                .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_EXPIRE_TIME)) // 토큰의 만료시간 설정
+                .setIssuedAt(date)
+                .signWith(key, SignatureAlgorithm.HS512)         //키와 알고리즘을 이용하여 암호화
+                .compact();*/
+    }
+
+    public static String createReFreshToken(String uid) {
+        Date date = new Date();
+        return Jwts.builder()
+                .setSubject(uid)
+                .setExpiration(new Date(REFRESH_TOKEN_EXPIRE_TIME))
+                .setIssuedAt(date)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
     }
 
     // JWT 토큰을 복호화하여 토큰에 들어 있는 정보를 꺼냄
