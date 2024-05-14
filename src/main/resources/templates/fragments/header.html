@@ -13,29 +13,6 @@
     <!-- 사용자 스크립트 추가 -->
     <script th:inline="javascript">
 
-        function Cart() {
-            var accessToken = localStorage.getItem('accessToken');
-    		var refreshToken = localStorage.getItem('refreshToken');
-
-    		if (!accessToken || !refreshToken) {
-        		alert('로그인 후 이용해주세요');
-        		location.href = '/login';
-        		return;
-    		}
-
-    		$.ajax({
-        		url: "/cart",
-        		type: "GET",
-        		cache: false,
-        		beforeSend: function(xhr) {
-            		xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        		},
-        		error: function(jqXHR, status, error) {
-            		alert(jqXHR.responseText);
-        		}
-    		});
-        }
-
     </script>
 
     <!-- header -->
@@ -66,7 +43,7 @@
                                     <ul class="sub-menu">
                                         <li><a href="404.html">404 page</a></li>
                                         <li><a href="about.html">About</a></li>
-                                        <li><a onclick="Cart()">Cart</a></li>
+                                        <li><a onclick="location.href='/cookie/test'">Cart</a></li>
                                         <li><a href="checkout.html">Check Out</a></li>
                                         <li><a href="contact.html">Contact</a></li>
                                         <li><a href="news.html">News</a></li>

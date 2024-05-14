@@ -87,6 +87,9 @@ public class CartServiceImpl implements CartService{
         }
 
         cartDetailDtoList = cartItemRepository.findCartDetailDtoList(cart.getId());
+
+        log.info("cartDetailDtoList : " + cartDetailDtoList);
+
         return cartDetailDtoList;
     }
 

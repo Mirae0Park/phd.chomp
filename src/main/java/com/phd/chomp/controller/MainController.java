@@ -17,23 +17,6 @@ import java.util.Optional;
 @Log4j2
 public class MainController {
 
-    @GetMapping("/join")
-    public String joinGet() {
-        /*model.addAttribute("memberJoinDto", new MemberJoinDTO());*/
-
-        log.info("MemberController.joinGet() 회원가입 페이지 접근");
-
-        return "member/signup";
-    }
-
-    @GetMapping("/login")
-    public String loginGet(){
-
-        log.info("MemberController.loginGet() 로그인 처리");
-
-        return "member/login";
-    }
-
     @GetMapping("/index")
     public String main(){
         log.info("index 페이지 접근");
@@ -47,7 +30,5 @@ public class MainController {
 
         return "index1";
     }
-
-
 
 }

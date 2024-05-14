@@ -24,10 +24,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByUid(username)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        Member member = memberRepository.findByUid(username).orElseThrow(() -> new UsernameNotFoundException("없는 회원 입니다..."));
 
-        return new UserDetailImpl(member, member.getPw(), member.getUid());
+        return User.builder().username(member.getUid()).password(member.getPw()).roles(member.getMemberRole().name()).build();
     }
 
     // DB 에 User 값이 존재한다면 UserDetails 객체로 만들어서 리턴

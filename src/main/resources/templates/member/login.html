@@ -27,15 +27,8 @@
                 contentType: 'application/json',
                 data: jsonData,
                 success: function(response) {
-                    // 로그인 성공 시 토큰을 받음
-                    var accessToken = response.accessToken;
-                    var refreshToken = response.refreshToken;
-
-                    // 토큰을 로컬 스토리지에 저장
-                    localStorage.setItem('accessToken', accessToken);
-
-                    // 다른 페이지로 이동
-                    window.location.href = '/join'; // 이동할 페이지 URL
+                    // 로그인 성공 후 이동할 페이지로 리다이렉트
+                    window.location.href = '/index'; // 이동할 페이지 URL
                 },
                 error: function(xhr, status, error) {
                     // 오류가 발생했을 때 실행할 코드

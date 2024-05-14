@@ -1,63 +1,58 @@
 package com.phd.chomp.controller;
 
 import com.phd.chomp.dto.MemberRequestDto;
-import com.phd.chomp.dto.MemberResponseDto;
-import com.phd.chomp.dto.TokenDto;
-import com.phd.chomp.dto.TokenRequestDto;
-import com.phd.chomp.service.AuthService;
+import com.phd.chomp.entity.Member;
+import com.phd.chomp.service.MemberService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 
-@RestController
+@Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Log4j2
 public class AuthController {
 
-    private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
+    private final MemberService memberService;
+
+    @GetMapping("/login")
+    public String loginGet(){
+
+        log.info("MemberController.loginGet() 로그인 처리");
+
+        return "member/login";
+    }
+
+    @GetMapping("/join")
+    public String joinGet(Model model) {
+        model.addAttribute("MemberRequestDto", new MemberRequestDto());
+
+        log.info("MemberController.joinGet() 회원가입 페이지 접근");
+
+        return "member/signup";
+    }
 
     @PostMapping("/signup") // 회원 가입
-    public ResponseEntity<MemberResponseDto> signup(@RequestBody MemberRequestDto memberRequestDto){
+    public String signup(@RequestBody MemberRequestDto memberRequestDto, BindingResult bindingResult, Model model){
         log.info("uid : " + memberRequestDto.getUid());
         log.info("pw : " + memberRequestDto.getPw());
 
-        return ResponseEntity.ok(authService.signup(memberRequestDto));
+        if (bindingResult.hasErrors()){
+            return "/auth/join";
+        }
+
+        Member member = Member.createMember(memberRequestDto, passwordEncoder);
+        memberService.saveMember(member);
+
+        return "index";
     }
-
-    /*@PostMapping("/login") // 로그인
-    public ResponseEntity<TokenDto> login (@RequestBody MemberRequestDto memberRequestDto){
-        log.info("Auth Controller Login method.....");
-
-        TokenDto tokenDto = authService.login(memberRequestDto);
-
-        log.info("RefreshToken : " + tokenDto.getRefreshToken());
-        log.info("AccessToken : " + tokenDto.getAccessToken());
-
-        return ResponseEntity.ok(tokenDto);
-    }*/
-
-    /*로그인 API*/
-    @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody MemberRequestDto requestDto, HttpServletResponse response) {
-        log.info("Auth Controller Login method.....");
-
-        TokenDto tokenDto = authService.login(requestDto, response);
-
-        log.info("AccessToken : " + tokenDto.getAccessToken());
-
-        return ResponseEntity.ok(tokenDto);
-    }
-
-    /*@PostMapping("/reissue") // 재발급
-    public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto tokenRequestDto) {
-        return ResponseEntity.ok(authService.reissue(tokenRequestDto));
-    }*/
 }
