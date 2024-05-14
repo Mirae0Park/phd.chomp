@@ -1,11 +1,15 @@
 package com.phd.chomp.config;
 
+import com.phd.chomp.config.auth.MyUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -27,9 +31,23 @@ import java.util.Collections;
 @Log4j2
 public class SecurityConfig {
 
+    private final MyUserDetailsService userDetailsService;
+
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+
+        authenticationProvider.setUserDetailsService(this.userDetailsService);
+        authenticationProvider.setPasswordEncoder(this.passwordEncoder());
+        authenticationProvider.setHideUserNotFoundExceptions(false);
+
+        return authenticationProvider;
     }
 
     @Bean
@@ -57,10 +75,11 @@ public class SecurityConfig {
 
                 .formLogin(login -> login
                         .loginPage("/auth/login")
-                        .loginProcessingUrl("/auth/loginProcess")
-                        .usernameParameter("userId")
+                        .loginProcessingUrl("/auth/loginProc") // 가로챌 url
+                        .usernameParameter("uid")
                         .passwordParameter("pw")
                         .defaultSuccessUrl("/index", true)
+                        .failureForwardUrl("/auth/login/error")
                         .permitAll()
                 )
                 .logout((logoutConfig) ->

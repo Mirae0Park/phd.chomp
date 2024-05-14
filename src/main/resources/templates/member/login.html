@@ -5,38 +5,31 @@
 
 <div layout:fragment="script">
     <script type="text/javascript">
-        $(document).ready(function() {
-        // 폼이 제출될 때의 이벤트 처리
-        $("form").submit(function(event) {
-            // 폼의 기본 동작 방지
-            event.preventDefault();
 
-            // 입력된 값을 가져와서 JSON 형태로 만듭니다.
-            var data = {
-                uid: $("#uid").val(),
-                pw: $("#pw").val()
-            };
+        /* 로그인이 실패했다면 에러 메시지를 경고창으로 보여줌 */
+        $(document).ready(function () {
+            var loginErrorMsg = "[[${loginErrorMsg}]]";
 
-            // JSON 객체를 문자열로 변환
-            var jsonData = JSON.stringify(data);
+            console.log(loginErrorMsg);
 
-            // AJAX 요청 보내기
-            $.ajax({
-                url: '/auth/login',
-                type: 'POST',
-                contentType: 'application/json',
-                data: jsonData,
-                success: function(response) {
-                    // 로그인 성공 후 이동할 페이지로 리다이렉트
-                    window.location.href = '/index'; // 이동할 페이지 URL
-                },
-                error: function(xhr, status, error) {
-                    // 오류가 발생했을 때 실행할 코드
-                    console.error(xhr.responseText);
-                }
-            });
+            if (loginErrorMsg != null && loginErrorMsg !== "") {
+                alert(loginErrorMsg);
+            }
         });
-    });
+
+        const formObj = document.querySelector("#loginForm")
+
+        document.querySelector(".text-wrapper-9").addEventListener("click", function (e) {
+
+            e.preventDefault()
+            e.stopPropagation()
+
+            formObj.action = `/member/join`
+            formObj.method = 'get'
+            formObj.submit()
+
+        }, false)
+
     </script>
 </div>
 
@@ -298,15 +291,15 @@
                                 <div class="card-body">
                                     <!--<h4 class="card-title">Default form</h4>-->
                                     <!--<p class="card-description"> Basic form layout </p>-->
-                                    <form class="forms-sample">
+                                    <form id="loginForm" action="/auth/loginProc" method="post" class="forms-sample">
                                         <div class="form-group">
-                                            <label for="uid">ID</label>
-                                            <input type="text" class="form-control" id="uid"
+                                            <label>ID</label>
+                                            <input type="text" class="form-control" name="uid"
                                                    placeholder="Username">
                                         </div>
                                         <div class="form-group">
-                                            <label for="pw">Password</label>
-                                            <input type="password" class="form-control" id="pw"
+                                            <label>Password</label>
+                                            <input type="password" class="form-control" name="pw"
                                                    placeholder="Password">
                                         </div>
                                         <!--<div class="form-group">
