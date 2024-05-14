@@ -37,13 +37,13 @@ public class CartServiceImpl implements CartService{
     private final CartItemRepository cartItemRepository;
 
     @Override
-    public Long addCart(CartItemDto cartItemDto, String id) {
+    public Long addCart(CartItemDto cartItemDto, String uid) {
 
         // 상품 조회
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException :: new);
 
         // 회원 조회
-        Member member = memberRepository.findWithRoleSetByUid(id);
+        Member member = memberRepository.findWithRoleSetByUid(uid);
 
         // 장바구니 조회
         Cart cart = cartRepository.findByMemberId(member.getId());

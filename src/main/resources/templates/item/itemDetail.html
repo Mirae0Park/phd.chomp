@@ -31,14 +31,14 @@
 
         function addCart() {
 
-            var accessToken = localStorage.getItem('accessToken');
-    		var refreshToken = localStorage.getItem('refreshToken');
+            var username = [[${username}]];
+            var memberRole = [[${memberRole}]];
+            var itemStatus = document.getElementById('itemStatus').value;
 
-    		if (!accessToken || !refreshToken) {
-        		alert('로그인 후 이용해주세요');
-        		location.href = '/login';
-        		return;
-    		}
+            if (username == null) {
+                 alert('로그인 후 이용해주세요');
+                 location.href = '/member/login';
+            }
 
     		var itemStatus = document.getElementById('itemStatus').value;
 
@@ -62,18 +62,9 @@
         		data: param,
         		dataType: "json",
         		cache: false,
-        		beforeSend: function(xhr) {
-            		xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        		},
-        		success: function(result, status, xhr) {
+        		success: function(result, status) {
             		alert("상품을 장바구니에 담았습니다.");
-
-            		var userId = result.userId; // 반환된 사용자 아이디
-
-    				location.href = '/cart?userId=' + userId;
-
-            		<!--location.href = '/cart';-->
-
+                    location.href = '/cart';
         		},
         		error: function(jqXHR, status, error) {
             		alert(jqXHR.responseText);

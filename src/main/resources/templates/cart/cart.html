@@ -20,7 +20,9 @@
         });
 
         function checkCartItems() {
-            if ($(".table-body-row").length === 0) {
+            var cartItems = [[${cartItems}]];
+
+            if (cartItems.length === 0) {
                 alert('장바구니가 비어있습니다!');
                 window.location.href = '/index';
             }
@@ -246,8 +248,8 @@
                                         <button type="button" aria-label="Close">
                             <span aria-hidden="true" th:data-id="${cartItem.cartItemId}"
                                   onclick="deleteCartItem(this)">X</span>
-                                        </button></td>
-
+                                        </button>
+                                    </td>
 
 
                                     <td class="product-image"><img class="data-cart-jpg" th:src="${cartItem.imgUrl}"
@@ -354,8 +356,6 @@
         </div>
     </div>
     <!-- end logo carousel -->
-    <script th:inline="javascript">
 
-    </script>
 </div>
 </html>

@@ -11,7 +11,7 @@ import java.util.List;
 @Transactional
 public interface CartService {
 
-    Long addCart(CartItemDto cartItemDto, String id);
+    Long addCart(CartItemDto cartItemDto, String uid);
 
     List<CartDetailDto> getCartList(String id);
 

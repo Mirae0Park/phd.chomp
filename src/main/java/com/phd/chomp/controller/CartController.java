@@ -2,9 +2,11 @@ package com.phd.chomp.controller;
 
 import com.phd.chomp.config.auth.UserAdapter;
 import com.phd.chomp.dto.CartDetailDto;
+import com.phd.chomp.dto.CartItemDto;
 import com.phd.chomp.service.CartService;
 import com.phd.chomp.service.MemberServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -67,21 +70,30 @@ public class CartController {
     }*/
 
     @PostMapping(value="/cart")
-    public ResponseEntity cartPage(Principal principal, Model model){
-        return new ResponseEntity<>(HttpStatus.OK);
+    public @ResponseBody ResponseEntity cartPage(@RequestBody @Valid CartItemDto cartItemDto,
+                                   BindingResult bindingResult, Principal principal){
+        if (bindingResult.hasErrors()){
+            StringBuilder sb = new StringBuilder();
+            return new ResponseEntity<String>(sb.toString(), HttpStatus.BAD_REQUEST);
+        }
+
+        String uid = principal.getName();
+        Long cartItemId;
+
+        try{
+            cartItemId = cartService.addCart(cartItemDto, uid);
+        } catch (Exception e){
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<Long>(cartItemId, HttpStatus.OK);
     }
 
     @GetMapping(value = "/cart")
-    public String orderHist(@AuthenticationPrincipal UserAdapter userAdapter, Model model){
+    public String orderHist(Principal principal, Model model){
 
         log.info("cart 페이지 접근");
 
-        log.info("Principal : " + userAdapter.getUsername());
-
-        List<CartDetailDto> cartDetailList = cartService.getCartList(userAdapter.getUsername());
-
-        log.info("cartItems : " + cartDetailList);
-
+        List<CartDetailDto> cartDetailList = cartService.getCartList(principal.getName());
         model.addAttribute("cartItems", cartDetailList);
 
         return "cart/cart";
