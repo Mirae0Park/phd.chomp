@@ -24,8 +24,6 @@ public class Order extends BaseEntity{
 
     private LocalDateTime orderDate; // 주문일
 
-    // private String address;
-
     private OrderStatus orderStatus;
 
     private String address;

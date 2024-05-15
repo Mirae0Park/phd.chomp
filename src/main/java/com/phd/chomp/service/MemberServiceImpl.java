@@ -22,4 +22,9 @@ public class MemberServiceImpl implements MemberService {
 
         return memberRepository.save(member);
     }
+
+    @Override
+    public Member getMemberInfo(String uid) {
+        return memberRepository.findWithRoleSetByUid(uid);
+    }
 }
